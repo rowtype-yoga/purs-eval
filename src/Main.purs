@@ -1,9 +1,10 @@
 module Main where
 
-import Prelude
+import Prelude (Unit, void, ($))
 
 import Effect (Effect)
-import Effect.Console (log)
+import Node.Process (stdin, stdout)
+import Node.Stream (pipe)
 
 main :: Effect Unit
-main = log "❄"
+main = void $ stdin `pipe` stdout

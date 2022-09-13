@@ -17,9 +17,9 @@
              purs-nix.purs
                { dependencies =
                    with purs-nix.ps-pkgs;
-                   [ console
-                     effect
+                   [ effect
                      prelude
+                     node-process
                    ];
 
                  dir = ./.;
