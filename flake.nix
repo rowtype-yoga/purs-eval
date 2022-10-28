@@ -44,8 +44,11 @@
             output = output { };
           };
 
+
+          checks.test = ps.test.check { };
+
           devShells.default = pkgs.mkShell {
-            buildInputs = with pkgs; [
+            packages = with pkgs; [
               nodejs
               (ps.command { })
               ps-tools.for-0_15.purescript-language-server
