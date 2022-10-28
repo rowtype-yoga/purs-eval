@@ -4,53 +4,49 @@
       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
       ps-tools.follows = "purs-nix/ps-tools";
       purs-nix.url = "github:purs-nix/purs-nix/ps-0.15";
-      utils.url = "github:numtide/flake-utils";
+      utils.url = "github:ursi/flake-utils";
     };
 
-  outputs = { nixpkgs, utils, ... }@inputs:
-    utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ]
-      (system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-          ps-tools = inputs.ps-tools.legacyPackages.${system};
-          purs-nix = inputs.purs-nix { inherit system; };
+  outputs = { utils, ... }@inputs:
+    utils.apply-systems { inherit inputs; } ({ pkgs, system, ... }:
+      let
+        ps-tools = inputs.ps-tools.legacyPackages.${system};
+        purs-nix = inputs.purs-nix { inherit system; };
+        ps =
+          purs-nix.purs
+            {
+              dependencies =
+                with purs-nix.ps-pkgs;
+                [
+                  effect
+                  prelude
+                  node-process
+                ];
 
-          ps =
-            purs-nix.purs
-              {
-                dependencies =
-                  with purs-nix.ps-pkgs;
-                  [
-                    effect
-                    prelude
-                    node-process
-                  ];
+              dir = ./.;
+            };
+      in
+      rec {
+        apps.default = {
+          type = "app";
+          program = "${packages.default}/bin/purs-eval";
+        };
 
-                dir = ./.;
-              };
-        in
-        {
-          packages.default = ps.modules.Main.app { name = "purs-eval"; };
+        packages = with ps.modules.Main; {
+          default = app { name = "purs-eval"; };
+          bundle = bundle { };
+          output = output { };
+        };
 
-          devShells.default =
-            pkgs.mkShell
-              {
-                packages =
-                  with pkgs;
-                  [
-                    entr
-                    nodejs
-                    (ps.command { })
-                    ps-tools.for-0_15.purescript-language-server
-                    purs-nix.esbuild
-                    purs-nix.purescript
-                  ];
-
-                shellHook =
-                  ''
-                    alias watch="find src | entr -s 'echo bundling; purs-nix bundle'"
-                  '';
-              };
-        }
-      );
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            nodejs
+            (ps.command { })
+            ps-tools.for-0_15.purescript-language-server
+            purs-nix.esbuild
+            purs-nix.purescript
+          ];
+        };
+      }
+    );
 }
