@@ -1,7 +1,6 @@
 module Test.Main where
 
-import Prelude (Unit, ($), (==), mempty, unit, pure, bind, const)
-import Control.Bind ((>=>))
+import Prelude (Unit, ($), (==), unit, pure, bind, const)
 import Control.Apply ((*>))
 import Control.Monad.Error.Class (class MonadThrow, throwError, liftMaybe)
 import Effect
@@ -12,7 +11,6 @@ import HTTPure.Request (Request)
 import HTTPure.Response (ok)
 import HTTPure.Server (serve)
 import HTTPure.Body (class Body)
-import HTTPure.Path (read)
 import HTTPure.Lookup ((!!))
 import Test.Unit (suite, test)
 import Test.Unit.Main (runTest)
@@ -23,8 +21,8 @@ validateReq :: forall m. MonadThrow Error m => Request -> m Unit
 validateReq req = do
    let invalidPath = error "invalid path"
        missingPath = error "missing path"
-   p <- liftMaybe missingPath $ read req !! 0
-   case p == "/compile" of
+   p <- liftMaybe missingPath $ req.path !! 0
+   case p == "compile" of
         true -> pure unit
         false -> throwError invalidPath 
 
@@ -42,4 +40,4 @@ main = runTest do
      test "produces expected output" do
         let expected = "2"
         actual <- setupSrv expected (compile "1+1")
-        actual `equal` expected
+        expected `equal` actual
