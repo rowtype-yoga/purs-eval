@@ -2,6 +2,8 @@
   inputs =
     {
       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+      npmlock2nix.url = "github:nix-community/npmlock2nix";
+      npmlock2nix.flake = false;
       ps-tools.follows = "purs-nix/ps-tools";
       purs-nix.url = "github:purs-nix/purs-nix/ps-0.15";
       utils.url = "github:ursi/flake-utils";
@@ -16,6 +18,7 @@
       }
       ({ pkgs, system, ... }:
         let
+          npm = import inputs.npmlock2nix { inherit pkgs; };
           ps-tools = inputs.ps-tools.legacyPackages.${system};
           purs-nix = inputs.purs-nix { inherit system; };
           ps =
@@ -35,7 +38,7 @@
                     affjax-node
                   ];
 
-                #foreign.xhr2.node_modules = ./xhr2.nix;
+                foreign."Affjax.Node".node_modules = npm.node_modules { src = ./.; } + /node_modules;
 
               };
         in
@@ -48,7 +51,7 @@
           packages = with ps.modules.Main; {
             default = app { name = "purs-eval"; };
             bundle = bundle { };
-            output = output { };
+            output = output { codegen = "corefn,js"; comments = true; no-prefix = true; };
           };
 
 
