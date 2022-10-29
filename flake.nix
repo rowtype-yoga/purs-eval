@@ -21,15 +21,22 @@
           ps =
             purs-nix.purs
               {
+                dir = ./.;
+                
                 dependencies =
                   with purs-nix.ps-pkgs;
                   [
-                    effect
                     prelude
+                    aff
+                    effect
                     node-process
+                    test-unit
+                    httpure
+                    affjax-node
                   ];
 
-                dir = ./.;
+                #foreign.xhr2.node_modules = ./xhr2.nix;
+
               };
         in
         rec {
