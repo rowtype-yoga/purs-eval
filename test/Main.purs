@@ -1,8 +1,9 @@
 module Test.Main where
 
-import Prelude (Unit, ($), (==), unit, pure, bind, const)
+import Prelude (Unit, ($), (==), (>>=), unit, pure, bind, const)
 import Control.Apply ((*>))
 import Control.Monad.Error.Class (class MonadThrow, throwError, liftMaybe)
+import Control.Monad.Reader.Trans (ReaderT, ask, runReaderT)
 import Effect
 import Effect.Aff (Aff, bracket)
 import Effect.Class (liftEffect)
@@ -12,23 +13,35 @@ import HTTPure.Response (ok)
 import HTTPure.Server (serve)
 import HTTPure.Body (class Body)
 import HTTPure.Lookup ((!!))
+import HTTPure.Method (Method(Post))
 import Test.Unit (suite, test)
 import Test.Unit.Main (runTest)
 import Test.Unit.Assert (equal)
 import Main (compile)
 
-validateReq :: forall m. MonadThrow Error m => Request -> m Unit
-validateReq req = do
+type RequestValidator = ReaderT Request Aff Unit
+
+validatePath :: RequestValidator
+validatePath = do
    let invalidPath = error "invalid path"
        missingPath = error "missing path"
+   req <- ask
    p <- liftMaybe missingPath $ req.path !! 0
    case p == "compile" of
         true -> pure unit
         false -> throwError invalidPath 
 
+validateMethod :: RequestValidator
+validateMethod = ask >>= case _ of
+   { method: Post } -> pure unit
+   _ -> throwError $ error "invalid method"
+
+runReqValidator :: Request -> Aff Unit
+runReqValidator req = runReaderT (validatePath *> validateMethod) req
+
 mockSrv :: forall a. Body a => a -> Aff (Effect Unit)
 mockSrv res = do
-  close <- liftEffect $ serve 3000 (\req -> validateReq req *> ok res) $ pure unit
+  close <- liftEffect $ serve 3000 (\req -> runReqValidator req *> ok res) $ pure unit
   pure $ close $ pure unit
 
 setupSrv :: forall a b. Body a => a -> Aff b -> Aff b
