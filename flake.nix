@@ -30,6 +30,7 @@
                   with purs-nix.ps-pkgs;
                   [
                     prelude
+                    debug
                     aff
                     effect
                     node-process

@@ -15,7 +15,7 @@ import Affjax.RequestBody (RequestBody (String))
 
 compile :: String -> Aff String
 compile s = do
-  mRes <- post string "http://localhost:3000/compiler" $ Just $ String s
+  mRes <- post string "http://localhost:3000/compile" $ Just $ String s
   res <- liftEither $ (error <<< printError) `lmap` mRes 
   pure res.body
 
