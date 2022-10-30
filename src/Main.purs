@@ -50,7 +50,7 @@ main :: Effect Unit
 main = launchAff_ do
   Tuple input _ <- readSome stdin
   code <- toStringUTF8 input
-  code' <- runCompiler { protocol: "https", hostname: "try.purescript.org", port: 80 } code
+  code' <- runCompiler { protocol: "https", hostname: "compile.purescript.org", port: 80 } code
   output <- fromStringUTF8 code'
   write stdout output
   end stdout
