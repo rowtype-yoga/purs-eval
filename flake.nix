@@ -54,7 +54,7 @@
           packages = with ps.modules.Main; {
             default = app { name = "purs-eval"; };
             bundle = bundle { };
-            output = output { codegen = "corefn,js"; comments = true; no-prefix = true; };
+            output = output { };
           };
 
 
