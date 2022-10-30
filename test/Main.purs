@@ -2,12 +2,12 @@ module Test.Main where
 
 import Prelude (Unit, ($), (==), (>>=), unit, pure, bind, const)
 import Control.Apply ((*>))
-import Control.Monad.Error.Class (class MonadThrow, throwError, liftMaybe)
+import Control.Monad.Error.Class (throwError, liftMaybe)
 import Control.Monad.Reader.Trans (ReaderT, ask, runReaderT)
 import Effect
 import Effect.Aff (Aff, bracket)
 import Effect.Class (liftEffect)
-import Effect.Exception (Error, error)
+import Effect.Exception (error)
 import HTTPure.Request (Request)
 import HTTPure.Response (ok)
 import HTTPure.Server (serve)
@@ -17,9 +17,12 @@ import HTTPure.Method (Method(Post))
 import Test.Unit (suite, test)
 import Test.Unit.Main (runTest)
 import Test.Unit.Assert (equal)
-import Main (compile)
+import Main (Settings, runCompiler)
 
 type RequestValidator = ReaderT Request Aff Unit
+
+settings :: Settings
+settings = { protocol: "http", hostname: "localhost", port: 3000 }
 
 validatePath :: RequestValidator
 validatePath = do
@@ -41,7 +44,7 @@ runReqValidator req = runReaderT (validatePath *> validateMethod) req
 
 mockSrv :: forall a. Body a => a -> Aff (Effect Unit)
 mockSrv res = do
-  close <- liftEffect $ serve 3000 (\req -> runReqValidator req *> ok res) $ pure unit
+  close <- liftEffect $ serve settings.port (\req -> runReqValidator req *> ok res) $ pure unit
   pure $ close $ pure unit
 
 setupSrv :: forall a b. Body a => a -> Aff b -> Aff b
@@ -52,5 +55,6 @@ main = runTest do
   suite "compile" do
      test "produces expected output" do
         let expected = "2"
+            compile = runCompiler settings
         actual <- setupSrv expected (compile "1+1")
         expected `equal` actual
