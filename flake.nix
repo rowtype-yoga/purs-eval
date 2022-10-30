@@ -2,6 +2,8 @@
   inputs =
     {
       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+      npmlock2nix.url = "github:nix-community/npmlock2nix";
+      npmlock2nix.flake = false;
       ps-tools.follows = "purs-nix/ps-tools";
       purs-nix.url = "github:purs-nix/purs-nix/ps-0.15";
       utils.url = "github:ursi/flake-utils";
@@ -16,20 +18,31 @@
       }
       ({ pkgs, system, ... }:
         let
+          npm = import inputs.npmlock2nix { inherit pkgs; };
           ps-tools = inputs.ps-tools.legacyPackages.${system};
           purs-nix = inputs.purs-nix { inherit system; };
           ps =
             purs-nix.purs
               {
+                dir = ./.;
+                
                 dependencies =
                   with purs-nix.ps-pkgs;
                   [
-                    effect
                     prelude
+                    debug
+                    aff
+                    effect
+                    node-buffer
                     node-process
+                    test-unit
+                    httpure
+                    affjax-node
+                    node-streams-aff
                   ];
 
-                dir = ./.;
+                foreign."Affjax.Node".node_modules = npm.node_modules { src = ./.; } + /node_modules;
+
               };
         in
         rec {
