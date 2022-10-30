@@ -33,10 +33,12 @@
                     debug
                     aff
                     effect
+                    node-buffer
                     node-process
                     test-unit
                     httpure
                     affjax-node
+                    node-streams-aff
                   ];
 
                 foreign."Affjax.Node".node_modules = npm.node_modules { src = ./.; } + /node_modules;
