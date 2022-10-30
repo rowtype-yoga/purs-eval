@@ -3,14 +3,11 @@ A simple PureScript expression evaluation tool
 
 ## Usage
 
-### With npm
-
 ```bash
-echo "1+1" | npx purs-eval | node
-```
 
-### With nix
+# With npm
+echo -e "module Main where\nimport Effect.Console (log)\nmain = log \"hello\"" | npx purs-eval
 
-```bash
-echo "1+1" | nix run github:klarkc/purs-eval | nix run nixpkgs#nodejs
+# With nix
+echo -e "module Main where\nimport Effect.Console (log)\nmain = log \"hello\"" | nix run github:klarkc/purs-eval
 ```
