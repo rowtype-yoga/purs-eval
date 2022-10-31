@@ -1,4 +1,4 @@
-module Test.Main (main) where
+module Test (main) where
 
 import Prelude (Unit)
 import Effect (Effect)
