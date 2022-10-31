@@ -19,12 +19,12 @@ import Test.Unit.Main (runTest)
 import Test.Unit.Assert (equal)
 import Main (Settings, runCompiler)
 
-type RequestValidator = ReaderT Request Aff Unit
+type RequestValidator = ReaderT Request Aff
 
 settings :: Settings
 settings = { protocol: "http", hostname: "localhost", port: 3000 }
 
-validatePath :: RequestValidator
+validatePath :: RequestValidator Unit
 validatePath = do
    let invalidPath = error "invalid path"
        missingPath = error "missing path"
@@ -34,7 +34,7 @@ validatePath = do
         true -> pure unit
         false -> throwError invalidPath 
 
-validateMethod :: RequestValidator
+validateMethod :: RequestValidator Unit
 validateMethod = ask >>= case _ of
    { method: Post } -> pure unit
    _ -> throwError $ error "invalid method"
@@ -54,7 +54,7 @@ main :: Effect Unit
 main = runTest do
   suite "compile" do
      test "produces expected output" do
-        let expected = "2"
+        let expected = "compiled-code"
             compile = runCompiler settings
-        actual <- setupSrv expected (compile "1+1")
+        actual <- setupSrv expected (compile "code")
         expected `equal` actual
