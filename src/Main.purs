@@ -1,50 +1,12 @@
-module Main where
+module Main (main) where
 
-import Prelude (Unit, ($), (<<<), void, pure, bind, show, discard)
-import Control.Bind ((=<<))
-import Control.Monad.Error.Class (liftEither)
-import Control.Monad.Reader.Trans (ReaderT, runReaderT, ask)
-import Control.Monad.Trans.Class (lift)
-import Data.Bifunctor (lmap)
-import Data.Maybe (Maybe(Just))
-import Data.Monoid ((<>))
+import Prelude (Unit, bind, discard)
 import Data.Tuple (Tuple (Tuple))
-import Data.Array (concat)
 import Effect (Effect)
-import Effect.Aff (Aff, error, launchAff_)
-import Effect.Class (liftEffect)
-import Node.Buffer (Buffer)
+import Effect.Aff (launchAff_)
 import Node.Process (stdin, stdout)
-import Node.Stream (pipe)
 import Node.Stream.Aff (readSome, write, end, toStringUTF8, fromStringUTF8)
-import Affjax.ResponseFormat (string)
-import Affjax.Node (post, printError)
-import Affjax.RequestBody (RequestBody (String))
-
-type Settings = { protocol :: String, hostname :: String, port :: Int }
-type Code = String
-type Compiler = ReaderT Code (ReaderT Settings Aff)
-
-askCode :: Compiler Code
-askCode = ask
-
-askSettings :: Compiler Settings
-askSettings = lift ask
-
-liftAff :: forall a. Aff a -> Compiler a
-liftAff h = lift $ lift h
-
-compile :: Compiler Code
-compile = do
-  code <- askCode
-  s <- askSettings
-  let url = s.protocol <> "://" <> s.hostname <> ":" <> show s.port <> "/compile"
-  mRes <- liftAff $ post string url $ Just $ String code
-  res <- liftEither $ (error <<< printError) `lmap` mRes 
-  pure res.body
-
-runCompiler :: Settings -> Code -> Aff Code
-runCompiler s code = runReaderT (runReaderT compile code) s
+import Compiler (runCompiler)
 
 main :: Effect Unit
 main = launchAff_ do
