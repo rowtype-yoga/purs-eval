@@ -4,6 +4,7 @@ import Prelude (Unit, ($), (==), (>>=), unit, pure, bind, const)
 import Control.Apply ((*>))
 import Control.Monad.Error.Class (throwError, liftMaybe)
 import Control.Monad.Reader.Trans (ReaderT, ask, runReaderT)
+import Control.Monad.Trans.Class (lift)
 import Effect
 import Effect.Aff (Aff, bracket)
 import Effect.Class (liftEffect)
@@ -17,38 +18,44 @@ import HTTPure.Method (Method(Post))
 import Test.Unit (suite, test)
 import Test.Unit.Main (runTest)
 import Test.Unit.Assert (equal)
-import Main (Settings, runCompiler)
+import Main (Settings, Code, runCompiler)
 
-type RequestValidator = ReaderT Request Aff
+type ServerMock = ReaderT Code (ReaderT Request Aff)
+
+askCode :: ServerMock Code
+askCode = ask
+
+askReq :: ServerMock Request
+askReq = lift ask
 
 settings :: Settings
 settings = { protocol: "http", hostname: "localhost", port: 3000 }
 
-validatePath :: RequestValidator Unit
+validatePath :: ServerMock Unit
 validatePath = do
    let invalidPath = error "invalid path"
        missingPath = error "missing path"
-   req <- ask
+   req <- askReq
    p <- liftMaybe missingPath $ req.path !! 0
    case p == "compile" of
         true -> pure unit
         false -> throwError invalidPath 
 
-validateMethod :: RequestValidator Unit
-validateMethod = ask >>= case _ of
+validateMethod :: ServerMock Unit
+validateMethod = askReq >>= case _ of
    { method: Post } -> pure unit
    _ -> throwError $ error "invalid method"
 
-runReqValidator :: Request -> Aff Unit
-runReqValidator req = runReaderT (validatePath *> validateMethod) req
+runServerMock :: Code -> Request -> Aff Unit
+runServerMock res req = runReaderT (runReaderT (validatePath *> validateMethod) res) req
 
-mockSrv :: forall a. Body a => a -> Aff (Effect Unit)
-mockSrv res = do
-  close <- liftEffect $ serve settings.port (\req -> runReqValidator req *> ok res) $ pure unit
+launchServerMock :: Code -> Aff (Effect Unit)
+launchServerMock res = do
+  close <- liftEffect $ serve settings.port (\req -> runServerMock res req *> ok res) $ pure unit
   pure $ close $ pure unit
 
-setupSrv :: forall a b. Body a => a -> Aff b -> Aff b
-setupSrv res act = bracket (mockSrv res) liftEffect (const act)
+setupSrv :: forall b. Code -> Aff b -> Aff b
+setupSrv code act = bracket (launchServerMock code) liftEffect (const act)
 
 main :: Effect Unit
 main = runTest do
