@@ -1,4 +1,5 @@
 {
+  "name": "purs-eval",
   "devDependencies": {
     "xhr2": "^0.2.1"
   }
