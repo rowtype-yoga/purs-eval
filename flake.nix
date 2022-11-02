@@ -25,7 +25,7 @@
             purs-nix.purs
               {
                 dir = ./.;
-                
+
                 dependencies =
                   with purs-nix.ps-pkgs;
                   [
@@ -48,20 +48,16 @@
 
               };
         in
+        with ps;
         rec {
           apps.default = {
             type = "app";
             program = "${packages.default}/bin/purs-eval";
           };
 
-          packages = with ps.modules.Main; {
-            default = app { name = "purs-eval"; };
-            bundle = bundle { };
-            output = output { };
-          };
+          packages.default = modules.Main.app { name = "purs-eval"; };
 
-
-          checks.test = ps.test.check { };
+          checks.test = test.check { };
 
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
