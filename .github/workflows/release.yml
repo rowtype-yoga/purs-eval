@@ -22,6 +22,7 @@ jobs:
         with:
           release-type: node
           package-name: purs-eval
+          release-as: 1.2.0
         # The logic below handles the npm publication:
         # these if statements ensure that a publication only occurs when
         # a new release is created:
