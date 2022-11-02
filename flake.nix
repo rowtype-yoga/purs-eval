@@ -32,13 +32,16 @@
                     prelude
                     debug
                     aff
+                    affjax-node
+                    argonaut-codecs
+                    argonaut-generic
                     effect
+                    httpure
                     node-buffer
                     node-process
-                    test-unit
-                    httpure
-                    affjax-node
                     node-streams-aff
+                    test-unit
+                    parsing
                   ];
 
                 foreign."Affjax.Node".node_modules = npm.node_modules { src = ./.; } + /node_modules;
