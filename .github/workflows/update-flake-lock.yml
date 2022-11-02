@@ -21,8 +21,7 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Update flake.lock
         uses: DeterminateSystems/update-flake-lock@v14
-        env:
-          GIT_COMMIT_MESSAGE: "build(deps): Bump flake.lock dependencies"
+        commit-msg: "build(deps): Bump flake.lock dependencies"
         with:
           pr-title: "Update flake.lock" 
           pr-labels: |                  
