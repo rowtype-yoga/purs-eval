@@ -7,6 +7,7 @@ module Compiler
   , SuccessResult
   , successFromJson 
   , runCompiler
+  , appendMain
   )
   where
 
@@ -78,6 +79,9 @@ rename :: String -> String -> Code -> Code
 rename url output code = PS.Replace.replace code (prefix <$> PS.string "from \"..") where
   prefix = const $ "from \"" <> url <> output
 
+appendMain :: Code -> Code
+appendMain code = code <> "\nmain();"
+
 compile :: Compiler Code
 compile = do
   code <- askCode
@@ -89,7 +93,7 @@ compile = do
   res <- liftEither $ (error <<< printError) `lmap` mRes 
   body <- liftEither $ error `lmap` (jsonParser res.body)
   succ <- liftEither $ s.parser body
-  pure $ rename url output succ.js
+  pure $ appendMain $ rename url output succ.js
 
 runCompiler :: Settings -> Code -> Aff Code
 runCompiler s code = runReaderT (runReaderT compile code) s
