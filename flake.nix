@@ -32,6 +32,8 @@
                     prelude
                     debug
                     aff
+                    argonaut-codecs
+                    argonaut-generic
                     effect
                     node-buffer
                     node-process
