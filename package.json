@@ -1,6 +1,6 @@
 {
   "name": "purs-eval",
-  "version": "1.2.0",
+  "version": "1.1.0",
   "bin": "dist/purs-eval",
   "devDependencies": {
     "xhr2": "^0.2.1"
