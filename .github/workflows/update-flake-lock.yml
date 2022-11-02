@@ -26,3 +26,4 @@ jobs:
           pr-labels: |                  
             dependencies
             automated
+          token: ${{ secrets.PAT_TOKEN }}
