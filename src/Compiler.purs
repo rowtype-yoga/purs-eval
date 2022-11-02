@@ -10,7 +10,7 @@ module Compiler
   )
   where
 
-import Prelude (bind, pure, show, ($), (<<<))
+import Prelude (bind, pure, show, ($), (<<<), const)
 import Control.Monad.Error.Class (liftEither)
 import Control.Monad.Reader.Trans (ReaderT, runReaderT, ask)
 import Control.Monad.Trans.Class (lift)
@@ -18,6 +18,7 @@ import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (printJsonDecodeError)
 import Data.Argonaut.Decode.Class (decodeJson)
 import Data.Argonaut.Parser (jsonParser)
+import Data.Functor ((<$>))
 import Data.Bifunctor (lmap)
 import Data.Either (Either)
 import Data.Maybe (Maybe(Just))
@@ -27,6 +28,8 @@ import Effect.Exception (Error)
 import Affjax.ResponseFormat (string)
 import Affjax.Node (post, printError)
 import Affjax.RequestBody (RequestBody (String))
+import Parsing.String as PS
+import Parsing.String.Replace as PS.Replace
 
 type Settings = { protocol :: String
                 , hostname :: String
@@ -71,16 +74,22 @@ askSettings = lift ask
 liftAff :: forall a. Aff a -> Compiler a
 liftAff h = lift $ lift h
 
+rename :: String -> String -> Code -> Code
+rename url output code = PS.Replace.replace code (prefix <$> PS.string "from \"..") where
+  prefix = const $ "from \"" <> url <> output
+
 compile :: Compiler Code
 compile = do
   code <- askCode
   s <- askSettings
-  let url = s.protocol <> "://" <> s.hostname <> ":" <> show s.port <> "/compile"
-  mRes <- liftAff $ post string url $ Just $ String code
+  let url = s.protocol <> "://" <> s.hostname <> ":" <> show s.port
+      endpoint = "/compile"
+      output = "/output"
+  mRes <- liftAff $ post string (url <> endpoint) $ Just $ String code
   res <- liftEither $ (error <<< printError) `lmap` mRes 
   body <- liftEither $ error `lmap` (jsonParser res.body)
   succ <- liftEither $ s.parser body
-  pure $ succ.js
+  pure $ rename url output succ.js
 
 runCompiler :: Settings -> Code -> Aff Code
 runCompiler s code = runReaderT (runReaderT compile code) s
