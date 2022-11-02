@@ -25,7 +25,10 @@ jobs:
         with:
           name: klarkc
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - run: nix build
+      - run: |
+          nix build
+          mkdir -p dist
+          cp result/bin/purs-eval dist
         if: ${{ steps.release.outputs.release_created }}
       - uses: actions/setup-node@v3
         if: ${{ steps.release.outputs.release_created }}
