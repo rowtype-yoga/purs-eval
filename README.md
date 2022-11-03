@@ -4,20 +4,14 @@ A simple PureScript expression evaluation tool
 ## Usage
 
 ```bash
-EXAMPLE=cat <<EOF
-module Main where
-
-import Effect.Console (log)
-
-main = log "hello"
-EOF
+EXAMPLE="module Main where\nimport Effect.Console (log)\nmain = log \"hello from PS\""
 
 # With npm
-echo $EXAMPLE | npx purs-eval
+echo -e $EXAMPLE | npx purs-eval
 
 # With nix
-echo $EXAMPLE | nix run github:klarkc/purs-eval 
+echo -e $EXAMPLE | nix run github:klarkc/purs-eval 
 
-# Piping to node
-echo $EXAMPLE | nix run github:klarkc/purs-eval | nix run nixpkgs#nodejs -- --experimental-network-imports --input-type module
+# Pipe node (>v18)
+echo -e $EXAMPLE | nix run github:klarkc/purs-eval | nix run nixpkgs#nodejs -- --experimental-network-imports --input-type module
 ```
