@@ -14,4 +14,7 @@ echo -e $EXAMPLE | nix run github:klarkc/purs-eval
 
 # Pipe node (>v18)
 echo -e $EXAMPLE | nix run github:klarkc/purs-eval | nix run nixpkgs#nodejs -- --experimental-network-imports --input-type module
+
+# or with npx
+echo -e $EXAMPLE | npx purs-eval | node --experimental-network-imports --input-type module
 ```
