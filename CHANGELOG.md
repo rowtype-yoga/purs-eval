@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/klarkc/purs-eval/compare/v1.2.0...v1.3.0) (2022-12-17)
+
+
+### Features
+
+* remove deprecated code ([bd857f1](https://github.com/klarkc/purs-eval/commit/bd857f17d0bae24376f734373c39682290acd1ff))
+
 ## 1.2.0 (2022-11-02)
 
 
