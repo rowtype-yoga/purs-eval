@@ -44,7 +44,7 @@
                     parsing
                   ];
 
-                foreign."Affjax.Node".node_modules = npm.node_modules { src = ./.; } + /node_modules;
+                foreign."Affjax.Node".node_modules = npm.v2.node_modules { src = ./.; } + /node_modules;
 
               };
         in
