@@ -27,6 +27,7 @@
         let
           npm = import inputs.npmlock2nix { inherit pkgs; };
           ps-tools = inputs.ps-tools.legacyPackages.${system};
+          inherit (ps-tools.for-0_15) purescript purs-tidy purescript-language-server;
           purs-nix = inputs.purs-nix { inherit system; };
           ps =
             purs-nix.purs
@@ -52,6 +53,7 @@
                   ];
 
                 foreign."Affjax.Node".node_modules = npm.v2.node_modules { src = ./.; } + /node_modules;
+                inherit purescript;
 
               };
         in
@@ -70,9 +72,10 @@
             packages = with pkgs; [
               nodejs
               (ps.command { })
-              ps-tools.for-0_15.purescript-language-server
+              purescript-language-server
+              purs-tidy
+              purescript
               purs-nix.esbuild
-              purs-nix.purescript
             ];
           };
         }
