@@ -57,23 +57,20 @@
                   ];
                 inherit purescript nodejs;
               };
+          name = "purs-eval";
         in
         with ps;
         rec {
           apps.default =
             {
               type = "app";
-              program = "${self.packages.${system}.default}";
+              program = "${packages.default}/bin/${name}";
             };
 
           packages =
             with ps;
             {
-              default = pkgs.writeScript "purs-eval" ''
-                #!${pkgs.nodejs}/bin/node
-                import("${self.packages.${system}.output}/Main/index.js").then(m=>m.main())
-              '';
-              output = output { };
+              default = app { inherit name; };
             };
 
           checks.test = test.check { };
