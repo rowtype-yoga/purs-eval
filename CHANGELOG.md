@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/klarkc/purs-eval/compare/v1.3.0...v1.4.0) (2023-08-21)
+
+
+### Features
+
+* add LSP to flake ([bb9f0e7](https://github.com/klarkc/purs-eval/commit/bb9f0e7b57980e7972c4ee454227351c599b5d35))
+
+
+### Bug Fixes
+
+* library API change ([b5acee9](https://github.com/klarkc/purs-eval/commit/b5acee96178b09f8c0505098a6e29171e27377a0))
+* npmlock2nix refusing to build ([3270052](https://github.com/klarkc/purs-eval/commit/3270052badb0fd9f1fa9c2166cec6cc2a4db4a75))
+* purs-nix API changes ([025f93e](https://github.com/klarkc/purs-eval/commit/025f93e75b82009d5d51061937093f052dbbea9e))
+
 ## [1.3.0](https://github.com/klarkc/purs-eval/compare/v1.2.0...v1.3.0) (2022-12-17)
 
 
