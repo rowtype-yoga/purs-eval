@@ -1,7 +1,6 @@
 module Main (main) where
 
 import Prelude (Unit, bind, discard)
-import Data.Tuple (Tuple (Tuple))
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Node.Process (stdin, stdout)
@@ -10,8 +9,8 @@ import Compiler (successFromJson, runCompiler)
 
 main :: Effect Unit
 main = launchAff_ do
-  Tuple input _ <- readSome stdin
-  code <- toStringUTF8 input
+  { buffers } <- readSome stdin
+  code <- toStringUTF8 buffers
   let settings = { protocol: "https"
                  , hostname: "compile.purescript.org"
                  , port: 443
