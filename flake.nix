@@ -15,6 +15,13 @@
         inherit inputs;
         # Limited by ps-tools
         systems = [ "x86_64-linux" "x86_64-darwin" ];
+        make-pkgs = system: import inputs.nixpkgs {
+          inherit system;
+          # required by npmlock2nix
+          config.permittedInsecurePackages = [
+            "nodejs-16.20.2"
+          ];
+        };
       }
       ({ pkgs, system, ... }:
         let
