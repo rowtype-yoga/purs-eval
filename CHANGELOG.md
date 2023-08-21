@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/klarkc/purs-eval/compare/v1.4.0...v1.4.1) (2023-08-21)
+
+
+### Bug Fixes
+
+* flake changes causing CI breakage ([d5d6085](https://github.com/klarkc/purs-eval/commit/d5d608561096f002d7004c1d54e0ae5aaebc67c8))
+
 ## [1.4.0](https://github.com/klarkc/purs-eval/compare/v1.3.0...v1.4.0) (2023-08-21)
 
 
