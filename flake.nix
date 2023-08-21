@@ -9,7 +9,7 @@
       utils.url = "github:ursi/flake-utils";
     };
 
-  outputs = { utils, ... }@inputs:
+  outputs = { self, utils, ... }@inputs:
     utils.apply-systems
       {
         inherit inputs;
@@ -25,22 +25,26 @@
       }
       ({ pkgs, system, ... }:
         let
+          inherit (pkgs) nodejs;
           npm = import inputs.npmlock2nix { inherit pkgs; };
+          node_modules = npm.v2.node_modules { src = ./.; inherit nodejs; } + /node_modules;
           ps-tools = inputs.ps-tools.legacyPackages.${system};
           inherit (ps-tools.for-0_15) purescript purs-tidy purescript-language-server;
           purs-nix = inputs.purs-nix { inherit system; };
+          affjax-node_ = pkgs.lib.recursiveUpdate purs-nix.ps-pkgs.affjax-node {
+            purs-nix-info.foreign."Affjax.Node" = { inherit node_modules; };
+          };
           ps =
             purs-nix.purs
               {
                 dir = ./.;
-
                 dependencies =
                   with purs-nix.ps-pkgs;
                   [
                     prelude
                     debug
                     aff
-                    affjax-node
+                    affjax-node_
                     argonaut-codecs
                     argonaut-generic
                     effect
@@ -51,20 +55,26 @@
                     test-unit
                     parsing
                   ];
-
-                foreign."Affjax.Node".node_modules = npm.v2.node_modules { src = ./.; } + /node_modules;
-                inherit purescript;
-
+                inherit purescript nodejs;
               };
         in
         with ps;
         rec {
-          apps.default = {
-            type = "app";
-            program = "${packages.default}/bin/purs-eval";
-          };
+          apps.default =
+            {
+              type = "app";
+              program = "${self.packages.${system}.default}";
+            };
 
-          packages.default = modules.Main.app { name = "purs-eval"; };
+          packages =
+            with ps;
+            {
+              default = pkgs.writeScript "purs-eval" ''
+                #!${pkgs.nodejs}/bin/node
+                import("${self.packages.${system}.output}/Main/index.js").then(m=>m.main())
+              '';
+              output = output { };
+            };
 
           checks.test = test.check { };
 
