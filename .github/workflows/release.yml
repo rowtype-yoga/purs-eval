@@ -19,7 +19,7 @@ jobs:
         with:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: cachix/cachix-action@v13
+      - uses: cachix/cachix-action@v14
         if: ${{ steps.release.outputs.release_created }}
         with:
           name: klarkc
