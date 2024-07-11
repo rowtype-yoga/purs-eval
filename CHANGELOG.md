@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/rowtype-yoga/purs-eval/compare/v1.4.1...v1.5.0) (2024-07-11)
+
+
+### Features
+
+* upgrade purs-nix and change mock server to httpurple ([ddaad01](https://github.com/rowtype-yoga/purs-eval/commit/ddaad01eed68afa45f584c807ed577abc565c247))
+
+
+### Bug Fixes
+
+* npm published version not running ([3f1a295](https://github.com/rowtype-yoga/purs-eval/commit/3f1a29567365000f57e6b2c9c54c55448c3a83c7))
+
 ## [1.4.1](https://github.com/klarkc/purs-eval/compare/v1.4.0...v1.4.1) (2023-08-21)
 
 
