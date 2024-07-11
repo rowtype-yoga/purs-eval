@@ -1,12 +1,18 @@
 {
   inputs =
     {
-      nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-      npmlock2nix.url = "github:nix-community/npmlock2nix";
-      npmlock2nix.flake = false;
-      ps-tools.follows = "purs-nix/ps-tools";
-      purs-nix.url = "github:purs-nix/purs-nix/ps-0.15";
+      purs-nix.url = "github:purs-nix/purs-nix";
+      nixpkgs.follows = "purs-nix/nixpkgs";
       utils.url = "github:ursi/flake-utils";
+      ps-tools.follows = "purs-nix/ps-tools";
+      npmlock2nix = {
+        url = "github:nix-community/npmlock2nix";
+        flake = false;
+      };
+      httpurple-argonaut = {
+        url = "github:sigma-andex/purescript-httpurple-argonaut"; 
+        flake = false;
+      };
     };
 
   outputs = { self, utils, ... }@inputs:
@@ -15,24 +21,23 @@
         inherit inputs;
         # Limited by ps-tools
         systems = [ "x86_64-linux" "x86_64-darwin" ];
-        make-pkgs = system: import inputs.nixpkgs {
-          inherit system;
-          # required by npmlock2nix
-          config.permittedInsecurePackages = [
-            "nodejs-16.20.2"
-          ];
-        };
       }
-      ({ pkgs, system, ... }:
+      ({ pkgs, system, ... }@ctx:
         let
           inherit (pkgs) nodejs;
           npm = import inputs.npmlock2nix { inherit pkgs; };
           node_modules = npm.v2.node_modules { src = ./.; inherit nodejs; } + /node_modules;
-          ps-tools = inputs.ps-tools.legacyPackages.${system};
-          inherit (ps-tools.for-0_15) purescript purs-tidy purescript-language-server;
+          inherit (ctx.ps-tools) purescript purs-tidy purescript-language-server;
           purs-nix = inputs.purs-nix { inherit system; };
           affjax-node_ = pkgs.lib.recursiveUpdate purs-nix.ps-pkgs.affjax-node {
             purs-nix-info.foreign."Affjax.Node" = { inherit node_modules; };
+          };
+          # TODO use httpurple-argonaut from official index
+          httpurple-argonaut_ = purs-nix.build 
+          { 
+            name = "httpurple-argonaut";
+            src.path = inputs.httpurple-argonaut;
+            info.dependencies = [ "argonaut" "console" "effect" "either" "httpurple" "prelude"];
           };
           ps =
             purs-nix.purs
@@ -48,10 +53,8 @@
                     argonaut-codecs
                     argonaut-generic
                     effect
-                    httpure
-                    node-buffer
-                    node-process
-                    node-streams-aff
+                    httpurple
+                    httpurple-argonaut_
                     test-unit
                     parsing
                   ];
