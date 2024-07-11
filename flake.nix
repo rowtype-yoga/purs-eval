@@ -71,9 +71,16 @@
             };
 
           packages =
-            with ps;
             {
               default = app { inherit name; };
+              # npm version does not publish a nix-store path
+              npm = pkgs.runCommand
+                "purs-eval-npm"
+                {}
+                ''
+                  echo "#!/usr/bin/env node" > $out
+                  tail -n +2 ${packages.default}/bin/purs-eval >> $out
+                '';
             };
 
           checks.test = test.check { };
