@@ -1,5 +1,5 @@
 # purs-eval
-A simple PureScript expression evaluation tool
+A simple PureScript expression evaluation tool. It uses [try.purescript.org](https://try.purescript.org) as a compilation backend; for this reason, it currently does not support embedding local files or modules.
 
 ## Usage
 
