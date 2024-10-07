@@ -13,7 +13,7 @@ jobs:
           release-type: node
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
-      - uses: cachix/install-nix-action@v29
+      - uses: cachix/install-nix-action@v30
         if: ${{ steps.release.outputs.release_created }}
         with:
           extra_nix_config: |
